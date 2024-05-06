@@ -1,0 +1,38 @@
+{
+  "name": "proton.osint",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "export ENV=dev && nodemon --ext '.ts' --exec 'ts-node src/index.ts'",
+    "build": "webpack",
+    "start": "node dist/proton.min.js",
+    "commit": "cz",
+    "prepare": "husky"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "cz-conventional-changelog": "^3.3.0",
+    "husky": "^9.0.11",
+    "nodemon": "^3.1.0",
+    "ts-loader": "^9.5.1",
+    "ts-node": "^10.9.2",
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "puppeteer": "^22.7.1"
+  },
+  "husky": {
+    "hooks": {
+      "prepare-commit-msg": "exec < /dev/tty && npx cz --hook || true"
+    }
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}
