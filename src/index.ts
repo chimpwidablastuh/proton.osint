@@ -42,6 +42,6 @@ import { DEV_TARGET, IS_PRODUCTION } from "./constants";
 
     const persons = await Proton.getPerson(DEV_TARGET);
 
-    console.log("persons:", persons);
+    console.table(persons);
   }
 })();

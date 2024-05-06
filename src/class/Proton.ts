@@ -5,9 +5,10 @@ import {
   PERSONS_URL,
   RESULT_PERSON_NAME,
   RESULT_PERSON_CONTAINER,
-  HEADLESS,
+  IS_DEV,
 } from "../constants";
 import { Company, Person } from "../types";
+import Trace from "./Trace";
 
 export class Proton {
   private browser: Browser | null = null;
@@ -20,7 +21,7 @@ export class Proton {
 
   async init() {
     this.browser = await puppeteer.launch({
-      headless: HEADLESS,
+      headless: !IS_DEV,
     });
     this.page = await this.browser.newPage();
     await this.page.setUserAgent(USER_AGENT);
@@ -39,6 +40,8 @@ export class Proton {
   }
 
   async getPerson(targetName: string): Promise<Person[]> {
+    let results: Person[] = [];
+
     await this.waitForReady();
 
     const page: Page = this.page as Page;
@@ -51,9 +54,74 @@ export class Proton {
 
     await page.keyboard.press("Enter");
 
-    await page.waitForSelector(RESULT_PERSON_NAME);
+    const hasResults = await page.waitForSelector(RESULT_PERSON_NAME, {
+      timeout: 5000,
+    });
+
+    // Is there some more pages?
+    const hasMultiplePage = hasResults
+      ? await page
+          .waitForSelector(".pagination-basdepage .texte-droite p", {
+            timeout: 1000,
+          })
+          .catch((e) => false)
+      : false;
+
+    if (!hasResults) {
+      return [];
+    } else if (hasResults && hasMultiplePage) {
+      // get .pagination-basdepage .texte-droite p innerHTML
+      const innerHTMLs = await page.$$eval(
+        ".pagination-basdepage .texte-droite p",
+        (elements) => elements.map((element) => element.innerHTML)
+      );
+
+      const maxPage = parseInt(innerHTMLs[0].split(" / ")[1], 10);
+
+      const url = page.url();
+      let didFinish = false;
+      let pageCount = 0;
+      while (!didFinish && pageCount <= maxPage) {
+        const hasStillResults = !!(await page.waitForSelector(
+          RESULT_PERSON_NAME,
+          {
+            timeout: 2000,
+          }
+        ));
+
+        if (!hasStillResults) {
+          Trace.log("No more results.");
+          didFinish = true;
+        } else {
+          await page.goto(
+            `${url}${pageCount === 0 ? "" : `&page=${pageCount}`}`
+          );
+          console.log(
+            `Getting page results of page [${pageCount + 1} / ${maxPage}]...`
+          );
+          const moreResults = await this.getPersonPage();
+          results = [...results, ...moreResults];
+        }
+        pageCount++;
+      }
+      return results;
+    } else {
+      results = await this.getPersonPage();
+    }
+    return results;
+  }
+
+  async getPersonPage(): Promise<Person[]> {
+    await this.waitForReady();
+
+    const page: Page = this.page as Page;
+
+    await page.waitForSelector(RESULT_PERSON_NAME, {
+      timeout: 2000,
+    });
 
     const persons = await page.$$eval(RESULT_PERSON_NAME, (elements) => {
+      console.log(elements);
       return elements.map((el) => {
         const anchorElement = el as HTMLAnchorElement;
         return {
@@ -62,6 +130,8 @@ export class Proton {
         };
       });
     });
+
+    console.log("temp persons:", persons);
 
     const societies = (await page.$$eval(
       RESULT_PERSON_CONTAINER,
