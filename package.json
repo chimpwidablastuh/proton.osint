@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "export ENV=dev && nodemon --ext '.ts' --exec 'ts-node src/index.ts'",
     "build": "webpack",
-    "start": "node dist/proton.min.js",
+    "compile": "npx pkg ./build/proton.min.js --output ./dist/proton --target node18-macos-arm64",
+    "start": "node build/proton.min.js",
     "commit": "cz",
     "prepare": "husky"
   },

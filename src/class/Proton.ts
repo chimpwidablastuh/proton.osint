@@ -5,6 +5,7 @@ import {
   PERSONS_URL,
   RESULT_PERSON_NAME,
   RESULT_PERSON_CONTAINER,
+  HEADLESS,
 } from "../constants";
 import { Company, Person } from "../types";
 
@@ -18,7 +19,9 @@ export class Proton {
   }
 
   async init() {
-    this.browser = await puppeteer.launch();
+    this.browser = await puppeteer.launch({
+      headless: HEADLESS,
+    });
     this.page = await this.browser.newPage();
     await this.page.setUserAgent(USER_AGENT);
     this.ready = true;

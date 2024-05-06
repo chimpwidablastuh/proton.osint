@@ -1,14 +1,10 @@
 import Proton from "./class/Proton";
-import readline from "readline"; // Import the 'readline' module
-import { createInterface } from "readline"; // Import the 'createInterface' function
-
-// 1) ASCII art PROTON.OSINT
-// 2) Ask the user for a name to osint
-// 3) Get the persons
-// 4) Print the persons
+import { createInterface } from "readline";
+import { DEV_TARGET, IS_PRODUCTION } from "./constants";
 
 (async () => {
-  console.log(`
+  if (IS_PRODUCTION) {
+    console.log(`
   ██████╗ ██████╗  ██████╗ ████████╗ ██████╗ ███╗   ██╗
   ██╔══██╗██╔══██╗██╔═══██╗╚══██╔══╝██╔═══██╗████╗  ██║
   ██████╔╝██████╔╝██║   ██║   ██║   ██║   ██║██╔██╗ ██║
@@ -16,25 +12,36 @@ import { createInterface } from "readline"; // Import the 'createInterface' func
   ██║     ██║  ██║╚██████╔╝   ██║   ╚██████╔╝██║ ╚████║
   ╚═╝     ╚═╝  ╚═╝ ╚═════╝    ╚═╝    ╚═════╝ ╚═╝  ╚═══╝
   `);
-  console.log("Welcome to PROTON.OSINT!");
+    console.log("Welcome to PROTON.OSINT!");
 
-  // 2) Ask the user for a name to osint
-  const rl = createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  const targetName = await new Promise<string>((resolve) => {
-    rl.question("Enter the name you want to osint: ", (answer) => {
-      resolve(answer);
+    // 2) Ask the user for a name to osint
+    const rl = createInterface({
+      input: process.stdin,
+      output: process.stdout,
     });
-  });
 
-  // 3) Get the persons
-  const persons = await Proton.getPerson(targetName);
+    const targetName = await new Promise<string>((resolve) => {
+      rl.question("Enter the name you want to osint: ", (answer) => {
+        resolve(answer);
+      });
+    });
 
-  // 4) Print the persons
-  console.table(persons);
+    // 3) Get the persons
+    const persons = await Proton.getPerson(targetName);
 
-  rl.close();
+    // 4) Print the persons
+    console.table(persons);
+
+    rl.close();
+  } else {
+    console.log(`Welcome to PROTON.OSINT<DEV MODE!!> !`);
+    console.log("You are in DEV mode.");
+    console.log(
+      `The target is: ${DEV_TARGET}. You can change it in 'src/constants/config.ts.'`
+    );
+
+    const persons = await Proton.getPerson(DEV_TARGET);
+
+    console.log("persons:", persons);
+  }
 })();
