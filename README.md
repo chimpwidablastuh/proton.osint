@@ -10,7 +10,7 @@ To run this gem, you will need:
 ## Installation 🛠️
 
 Getting started with PROTON.OSINT is as easy as pie:
-1. Clone this repository: `git clone https://your-repository-url`
+1. Clone this repository: `git clone https://github.com/elcitrovmtgrande/proton.osint`
 2. Install dependencies: `npm install`
 3. Build the project: `npm run build`
 4. Start the tool: `npm start`
