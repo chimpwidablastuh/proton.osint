@@ -1,11 +1,11 @@
 import puppeteer, { Browser, Page } from "puppeteer";
 import {
-  USER_AGENT,
   SEARCH_BAR,
   PERSONS_URL,
   RESULT_PERSON_NAME,
   RESULT_PERSON_CONTAINER,
   IS_DEV,
+  USER_AGENT,
 } from "../constants";
 import { Company, Person } from "../types";
 import Trace from "./Trace";
